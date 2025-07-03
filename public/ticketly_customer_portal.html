@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketLy - האזור האישי שלי</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .welcome-text {
+            color: #333;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        /* Left Column - AI Chat */
+        .ai-chat-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .chat-header h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-subtitle {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #27ae60;
+            color: white;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 15px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .message.ai .message-bubble {
+            background: white;
+            border: 1px solid #eee;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            color: #666;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: scale(0.8); opacity: 0.5; }
+            30% { transform: scale(1); opacity: 1; }
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+
+        .chat-textarea {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 0.75rem 1rem;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            max-height: 100px;
+            min-height: 45px;
+        }
+
+        .chat-textarea:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Right Column - Tickets */
+        .tickets-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .tickets-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .tickets-header h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .tickets-count {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .ticket-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .ticket-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .ticket-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .ticket-status.new { background: #e3f2fd; color: #1976d2; }
+        .ticket-status.open { background: #fff3e0; color: #f57c00; }
+        .ticket-status.pending { background: #fce4ec; color: #c2185b; }
+        .ticket-status.resolved { background: #e8f5e8; color: #388e3c; }
+
+        .ticket-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .ticket-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .quick-actions {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+
+        /* Suggestions */
+        .quick-suggestions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .suggestion-btn {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-chat-section {
+                height: 500px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        /* Login Modal */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-modal.hidden {
+            display: none;
+        }
+
+        .login-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-form h2 {
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(45d, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-form">
+            <h2>כניסה לאזור האישי</h2>
+            <p style="margin-bottom: 1.5rem; color: #666;">
+                הזינו את המייל ומספר הטלפון שהשארתם בפניה
+            </p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">כתובת אימייל</label>
+                    <input type="email" class="form-input" id="email" required placeholder="your@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">מספר טלפון</label>
+                    <input type="tel" class="form-input" id="phone" required placeholder="050-1234567">
+                </div>
+                
+                <button type="submit" class="login-btn">כניסה לאזור האישי</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">TicketLy</div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">Y</div>
+                <div>
+                    <div class="welcome-text">שלום, <span id="userName">יוסי כהן</span></div>
+                    <div style="font-size: 0.9rem; color: #666;">לקוח מאומת</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    יציאה
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- AI Chat Section -->
+            <div class="ai-chat-section">
+                <div class="chat-header">
+                    <h2><i class="fas fa-robot"></i> העוזר האישי שלך</h2>
+                    <p class="chat-subtitle">שאל אותי כל שאלה או ספר לי על בעיה חדשה</p>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-bubble">
+                            שלום יוסי! 👋<br><br>
+                            אני העוזר הדיגיטלי של TicketLy. אני כאן לעזור לך עם:
+                            <br>• פתיחת פניות חדשות
+                            <br>• מעקב אחר פניות קיימות  
+                            <br>• מענה לשאלות כלליות
+                            <br>• חיבור לנציג אנושי
+                            <br><br>
+                            איך אני יכול לעזור לך היום?
+                            <div class="message-time">14:30</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="message-avatar">🤖</div>
+                    <div>
+                        העוזר כותב
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <div class="quick-suggestions">
+                        <button class="suggestion-btn" onclick="sendSuggestion('יש לי בעיה בהתחברות')">
+                            בעיה בהתחברות
+                        </button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('אני רוצה לבטל הזמנה')">
+                            ביטול הזמנה
+                        </button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('שאלה על החיוב')">
+                            שאלה על חיוב
+                        </button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('רוצה לדבר עם נציג')">
+                            נציג אנושי
+                        </button>
+                    </div>
+                    
+                    <div class="input-group">
+                        <textarea 
+                            class="chat-textarea" 
+                            id="messageInput" 
+                            placeholder="הקלד הודעה..."
+                            rows="1"
+                        ></textarea>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="tickets-section">
+                <!-- Tickets Count -->
+                <div class="tickets-header">
+                    <h3>הפניות שלי</h3>
+                    <div class="tickets-count" id="ticketsCount">3</div>
+                    <div style="color: #666; font-size: 0.9rem;">פניות פעילות</div>
+                </div>
+
+                <!-- Recent Tickets -->
+                <div class="ticket-card" onclick="openTicket('TKT-2025-001')">
+                    <div class="ticket-header">
+                        <span class="ticket-number">TKT-2025-001</span>
+                        <span class="ticket-status new">חדש</span>
+                    </div>
+                    <div class="ticket-title">בעיה בהתחברות למערכת</div>
+                    <div class="ticket-meta">
+                        <span>נפתח: לפני יום</span>
+                        <span>נציג: מיכל לוי</span>
+                    </div>
+                </div>
+
+                <div class="ticket-card" onclick="openTicket('TKT-2025-015')">
+                    <div class="ticket-header">
+                        <span class="ticket-number">TKT-2025-015</span>
+                        <span class="ticket-status open">פתוח</span>
+                    </div>
+                    <div class="ticket-title">בקשה לשינוי תוכנית</div>
+                    <div class="ticket-meta">
+                        <span>נפתח: לפני 3 ימים</span>
+                        <span>נציג: דוד כהן</span>
+                    </div>
+                </div>
+
+                <div class="ticket-card" onclick="openTicket('TKT-2025-008')">
+                    <div class="ticket-header">
+                        <span class="ticket-number">TKT-2025-008</span>
+                        <span class="ticket-status resolved">נפתר</span>
+                    </div>
+                    <div class="ticket-title">שאלה על תמחור</div>
+                    <div class="ticket-meta">
+                        <span>נפתח: לפני שבוע</span>
+                        <span>נציג: רינה כץ</span>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>פעולות מהירות</h3>
+                    <button class="action-btn" onclick="newTicketViaAI()">
+                        <i class="fas fa-plus"></i>
+                        פניה חדשה דרך AI
+                    </button>
+                    <button class="action-btn secondary" onclick="viewAllTickets()">
+                        <i class="fas fa-list"></i>
+                        כל הפניות שלי
+                    </button>
+                    <button class="action-btn secondary" onclick="downloadHistory()">
+                        <i class="fas fa-download"></i>
+                        הורד היסטוריה
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        let currentUser = null;
+        let isLoggedIn = false;
+
+        // Auto-resize textarea
+        const messageInput = document.getElementById('messageInput');
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+
+        // Send message on Enter
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            
+            // Simulate login
+            if (email && phone) {
+                currentUser = {
+                    name: email.split('@')[0],
+                    email: email,
+                    phone: phone
+                };
+                
+                isLoggedIn = true;
+                document.getElementById('loginModal').classList.add('hidden');
+                updateUserInfo();
+                addWelcomeMessage();
+            }
+        });
+
+        function updateUserInfo() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            }
+        }
+
+        function addWelcomeMessage() {
+            // The welcome message is already in the HTML
+        }
+
+        // Chat functionality
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addUserMessage(message);
+                input.value = '';
+                input.style.height = 'auto';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Simulate AI response
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    handleAIResponse(message);
+                }, 1500 + Math.random() * 1000);
+            }
+        }
+
+        function sendSuggestion(suggestion) {
+            document.getElementById('messageInput').value = suggestion;
+            sendMessage();
+        }
+
+        function addUserMessage(message) {
+            const chatMessages = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString('he-IL', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">👤</div>
+                <div class="message-bubble">
+                    ${message}
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function addAIMessage(message) {
+            const chatMessages = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString('he-IL', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-bubble">
+                    ${message}
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('active');
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.remove('active');
+        }
+
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleAIResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            let response = '';
+            
+            if (message.includes('בעיה') || message.includes('תקלה') || message.includes('לא עובד')) {
+                response = `הבנתי שיש לך בעיה טכנית. 🔧<br><br>
+                           כדי שאוכל לעזור לך בצורה הטובה ביותר, אני צריך עוד פרטים:<br>
+                           • באיזה מכשיר זה קורה? (מחשב/טלפון)<br>
+                           • מתי זה התחיל?<br>
+                           • איזה הודעת שגיאה אתה רואה?<br><br>
+                           או שאני יכול לפתוח לך פניה חדשה מיד ולחבר אותך לנציג טכני. מה תעדיף?`;
+            } 
+            else if (message.includes('ביטול') || message.includes('בטל')) {
+                response = `הבנתי שאתה רוצה לבטל משהו. ❌<br><br>
+                           אני יכול לעזור לך עם:<br>
+                           • ביטול הזמנה<br>
+                           • ביטול מנוי<br>
+                           • ביטול שירות<br><br>
+                           האם תוכל לפרט בדיוק מה אתה רוצה לבטל? כך אוכל לטפל בזה מהר יותר.`;
+            }
+            else if (message.includes('חיוב') || message.includes('תשלום') || message.includes('כסף')) {
+                response = `יש לך שאלה על חיוב או תשלום. 💳<br><br>
+                           אני יכול לעזור לך עם:<br>
+                           • הסבר על החיוב האחרון<br>
+                           • שינוי פרטי תשלום<br>
+                           • בעיות בחיוב<br>
+                           • החזר כספי<br><br>
+                           מה בדיוק מעניין אותך?`;
+            }
+            else if (message.includes('נציג') || message.includes('אנושי') || message.includes('אדם')) {
+                response = `כמובן! אני אחבר אותך לנציג אנושי. 👩‍💼<br><br>
+                           אני פותח לך פניה חדשה עכשיו...<br><br>
+                           <strong>מספר פניה: TKT-${Date.now()}</strong><br><br>
+                           הנציג יחזור אליך תוך 15 דקות ויוכל לעזור לך עם הבעיה.
+                           האם תרצה לתאר כבר עכשיו במה מדובר?`;
+                
+                // Create new ticket automatically
+                setTimeout(() => {
+                    createTicket("בקשה לחיבור לנציג אנושי", userMessage);
+                }, 1000);
+            }
+            else if (message.includes('תודה') || message.includes('תשכר')) {
+                response = `תמיד לשירותך! 😊<br><br>
+                           אם יש לך עוד שאלות או בעיות, אני כאן בשבילך 24/7.
+                           אפשר גם להגיע ישירות לנציג אנושי אם צריך.`;
+            }
+            else {
+                response = `הבנתי את הבקשה שלך. 🤔<br><br>
+                           האם תוכל לפרט יותר כדי שאוכל לעזור לך בצורה הטובה ביותר?<br><br>
+                           או שאתה מעדיף שאני אפתח לך פניה חדשה ואחבר אותך לנציג שיטפל בזה אישית?`;
+            }
+            
+            addAIMessage(response);
+        }
+
+        function createTicket(title, description) {
+            // Simulate ticket creation
+            console.log('Creating ticket:', title, description);
+            
+            // Update tickets count
+            const currentCount = parseInt(document.getElementById('ticketsCount').textContent);
+            document.getElementById('ticketsCount').textContent = currentCount + 1;
+            
+            // Add success message
+            setTimeout(() => {
+                addAIMessage(`✅ הפניה נוצרה בהצלחה!<br><br>
+                             מספר פניה: <strong>TKT-${Date.now()}</strong><br>
+                             נציג יחזור אליך בקרוב.`);
+            }, 2000);
+        }
+
+        // Other functions
+        function newTicketViaAI() {
+            document.getElementById('messageInput').value = 'אני רוצה לפתוח פניה חדשה';
+            sendMessage();
+        }
+
+        function openTicket(ticketNumber) {
+            addAIMessage(`פותח פניה ${ticketNumber}...<br><br>
+                         📋 <strong>סטטוס:</strong> פתוח<br>
+                         👤 <strong>נציג מטפל:</strong> מיכל לוי<br>
+                         📅 <strong>נפתח:</strong> לפני יום<br><br>
+                         האם תרצה לראות את ההיסטוריה המלאה או להוסיף עדכון?`);
+        }
+
+        function viewAllTickets() {
+            addAIMessage(`הנה כל הפניות שלך: 📋<br><br>
+                         🟢 <strong>TKT-2025-001</strong> - בעיה בהתחברות (חדש)<br>
+                         🟡 <strong>TKT-2025-015</strong> - שינוי תוכנית (פתוח)<br>
+                         ✅ <strong>TKT-2025-008</strong> - שאלה על תמחור (נפתר)<br><br>
+                         איזה פניה תרצה לראות?`);
+        }
+
+        function downloadHistory() {
+            addAIMessage(`מכין את ההיסטוריה להורדה... 📥<br><br>
+                         הקובץ יכלול:<br>
+                         • כל הפניות שלך<br>
+                         • תאריכים ופרטים<br>
+                         • תכתובות<br><br>
+                         ההורדה תתחיל תוך כמה שניות.`);
+        }
+
+        function logout() {
+            if (confirm('האם אתה בטוח שברצונך לצאת?')) {
+                location.reload();
+            }
+        }
+
+        // Initialize
+        if (!isLoggedIn) {
+            // Show login modal on page load
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        // Auto-login for demo (remove in production)
+        setTimeout(() => {
+            if (!isLoggedIn) {
+                document.getElementById('email').value = 'yossi@example.com';
+                document.getElementById('phone').value = '050-1234567';
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        }, 2000);
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketLy - האזור האישי שלי</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .welcome-text {
+            color: #333;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        /* Left Column - AI Chat */
+        .ai-chat-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .chat-header h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-subtitle {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #27ae60;
+            color: white;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 15px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .message.ai .message-bubble {
+            background: white;
+            border: 1px solid #eee;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            color: #666;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: scale(0.8); opacity: 0.5; }
+            30% { transform: scale(1); opacity: 1; }
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+
+        .chat-textarea {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 0.75rem 1rem;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            max-height: 100px;
+            min-height: 45px;
+        }
+
+        .chat-textarea:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Right Column - Tickets */
+        .tickets-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .tickets-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .tickets-header h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .tickets-count {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .ticket-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .ticket-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .ticket-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .ticket-status.new { background: #e3f2fd; color: #1976d2; }
+        .ticket-status.open { background: #fff3e0; color: #f57c00; }
+        .ticket-status.pending { background: #fce4ec; color: #c2185b; }
+        .ticket-status.resolved { background: #e8f5e8; color: #388e3c; }
+
+        .ticket-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .ticket-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .quick-actions {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+
+        /* Suggestions */
+        .quick-suggestions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .suggestion-btn {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-chat-section {
+                height: 500px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        /* Login Modal */
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-modal.hidden {
+            display: none;
+        }
+
+        .login-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-form h2 {
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(45d, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-form">
+            <h2>כניסה לאזור האישי</h2>
+            <p style="margin-bottom: 1.5rem; color: #666;">
+                הזינו את המייל ומספר הטלפון שהשארתם בפניה
+            </p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">כתובת אימייל</label>
+                    <input type="email" class="form-input" id="email" required placeholder="your@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">מספר טלפון</label>
+                    <input type="tel" class="form-input" id="phone" required placeholder="050-1234567">
+                </div>
+                
+                <button type="submit" class="login-btn">כניסה לאזור האישי</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">TicketLy</div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">Y</div>
+                <div>
+                    <div class="welcome-text">שלום, <span id="userName">יוסי כהן</span></div>
+                    <div style="font-size: 0.9rem; color: #666;">לקוח מאומת</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    יציאה
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- AI Chat Section -->
+            <div class="ai-chat-section">
+                <div class="chat-header">
+                    <h2><i class="fas fa-robot"></i> העוזר האישי שלך</h2>
+                    <p class="chat-subtitle">שאל אותי כל שאלה או ספר לי על בעיה חדשה</p>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-bubble">
+                            שלום יוסי! 👋<br><br>
+                            אני העוזר הדיגיטלי של TicketLy. אני כאן לעזור לך עם:
+                            <br>• פתיחת פניות חדשות
+                            <br>• מעקב אחר פניות קיימות  
+                            <br>• מענה לשאלות כלליות
+                            <br>• חיבור לנציג אנושי
+                            <br><br>
+                            איך אני יכול לעזור לך היום?
+                            <div class="message-time">14:30</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="message-avatar">🤖</div>
+                    <div>
+                        העוזר כותב
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <div class="quick-suggestions">
+                        <button class="suggestion-btn" onclick="sendSuggestion('יש לי בעיה בהתחברות')">
+                            בעיה בהתחברות
+                        </button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('אני רוצה לבטל הזמנה')">
+                            ביטול הזמנה
+                        </button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('שאלה על החיוב')">
+                            שאלה על חיוב
+                        </button>
+                        <button class="suggestion-btn" onclick="sendSuggestion('רוצה לדבר עם נציג')">
+                            נציג אנושי
+                        </button>
+                    </div>
+                    
+                    <div class="input-group">
+                        <textarea 
+                            class="chat-textarea" 
+                            id="messageInput" 
+                            placeholder="הקלד הודעה..."
+                            rows="1"
+                        ></textarea>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="tickets-section">
+                <!-- Tickets Count -->
+                <div class="tickets-header">
+                    <h3>הפניות שלי</h3>
+                    <div class="tickets-count" id="ticketsCount">3</div>
+                    <div style="color: #666; font-size: 0.9rem;">פניות פעילות</div>
+                </div>
+
+                <!-- Recent Tickets -->
+                <div class="ticket-card" onclick="openTicket('TKT-2025-001')">
+                    <div class="ticket-header">
+                        <span class="ticket-number">TKT-2025-001</span>
+                        <span class="ticket-status new">חדש</span>
+                    </div>
+                    <div class="ticket-title">בעיה בהתחברות למערכת</div>
+                    <div class="ticket-meta">
+                        <span>נפתח: לפני יום</span>
+                        <span>נציג: מיכל לוי</span>
+                    </div>
+                </div>
+
+                <div class="ticket-card" onclick="openTicket('TKT-2025-015')">
+                    <div class="ticket-header">
+                        <span class="ticket-number">TKT-2025-015</span>
+                        <span class="ticket-status open">פתוח</span>
+                    </div>
+                    <div class="ticket-title">בקשה לשינוי תוכנית</div>
+                    <div class="ticket-meta">
+                        <span>נפתח: לפני 3 ימים</span>
+                        <span>נציג: דוד כהן</span>
+                    </div>
+                </div>
+
+                <div class="ticket-card" onclick="openTicket('TKT-2025-008')">
+                    <div class="ticket-header">
+                        <span class="ticket-number">TKT-2025-008</span>
+                        <span class="ticket-status resolved">נפתר</span>
+                    </div>
+                    <div class="ticket-title">שאלה על תמחור</div>
+                    <div class="ticket-meta">
+                        <span>נפתח: לפני שבוע</span>
+                        <span>נציג: רינה כץ</span>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>פעולות מהירות</h3>
+                    <button class="action-btn" onclick="newTicketViaAI()">
+                        <i class="fas fa-plus"></i>
+                        פניה חדשה דרך AI
+                    </button>
+                    <button class="action-btn secondary" onclick="viewAllTickets()">
+                        <i class="fas fa-list"></i>
+                        כל הפניות שלי
+                    </button>
+                    <button class="action-btn secondary" onclick="downloadHistory()">
+                        <i class="fas fa-download"></i>
+                        הורד היסטוריה
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        let currentUser = null;
+        let isLoggedIn = false;
+
+        // Auto-resize textarea
+        const messageInput = document.getElementById('messageInput');
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+
+        // Send message on Enter
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            
+            // Simulate login
+            if (email && phone) {
+                currentUser = {
+                    name: email.split('@')[0],
+                    email: email,
+                    phone: phone
+                };
+                
+                isLoggedIn = true;
+                document.getElementById('loginModal').classList.add('hidden');
+                updateUserInfo();
+                addWelcomeMessage();
+            }
+        });
+
+        function updateUserInfo() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            }
+        }
+
+        function addWelcomeMessage() {
+            // The welcome message is already in the HTML
+        }
+
+        // Chat functionality
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addUserMessage(message);
+                input.value = '';
+                input.style.height = 'auto';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Simulate AI response
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    handleAIResponse(message);
+                }, 1500 + Math.random() * 1000);
+            }
+        }
+
+        function sendSuggestion(suggestion) {
+            document.getElementById('messageInput').value = suggestion;
+            sendMessage();
+        }
+
+        function addUserMessage(message) {
+            const chatMessages = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString('he-IL', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">👤</div>
+                <div class="message-bubble">
+                    ${message}
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function addAIMessage(message) {
+            const chatMessages = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString('he-IL', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            messageDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-bubble">
+                    ${message}
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('active');
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.remove('active');
+        }
+
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleAIResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            let response = '';
+            
+            if (message.includes('בעיה') || message.includes('תקלה') || message.includes('לא עובד')) {
+                response = `הבנתי שיש לך בעיה טכנית. 🔧<br><br>
+                           כדי שאוכל לעזור לך בצורה הטובה ביותר, אני צריך עוד פרטים:<br>
+                           • באיזה מכשיר זה קורה? (מחשב/טלפון)<br>
+                           • מתי זה התחיל?<br>
+                           • איזה הודעת שגיאה אתה רואה?<br><br>
+                           או שאני יכול לפתוח לך פניה חדשה מיד ולחבר אותך לנציג טכני. מה תעדיף?`;
+            } 
+            else if (message.includes('ביטול') || message.includes('בטל')) {
+                response = `הבנתי שאתה רוצה לבטל משהו. ❌<br><br>
+                           אני יכול לעזור לך עם:<br>
+                           • ביטול הזמנה<br>
+                           • ביטול מנוי<br>
+                           • ביטול שירות<br><br>
+                           האם תוכל לפרט בדיוק מה אתה רוצה לבטל? כך אוכל לטפל בזה מהר יותר.`;
+            }
+            else if (message.includes('חיוב') || message.includes('תשלום') || message.includes('כסף')) {
+                response = `יש לך שאלה על חיוב או תשלום. 💳<br><br>
+                           אני יכול לעזור לך עם:<br>
+                           • הסבר על החיוב האחרון<br>
+                           • שינוי פרטי תשלום<br>
+                           • בעיות בחיוב<br>
+                           • החזר כספי<br><br>
+                           מה בדיוק מעניין אותך?`;
+            }
+            else if (message.includes('נציג') || message.includes('אנושי') || message.includes('אדם')) {
+                response = `כמובן! אני אחבר אותך לנציג אנושי. 👩‍💼<br><br>
+                           אני פותח לך פניה חדשה עכשיו...<br><br>
+                           <strong>מספר פניה: TKT-${Date.now()}</strong><br><br>
+                           הנציג יחזור אליך תוך 15 דקות ויוכל לעזור לך עם הבעיה.
+                           האם תרצה לתאר כבר עכשיו במה מדובר?`;
+                
+                // Create new ticket automatically
+                setTimeout(() => {
+                    createTicket("בקשה לחיבור לנציג אנושי", userMessage);
+                }, 1000);
+            }
+            else if (message.includes('תודה') || message.includes('תשכר')) {
+                response = `תמיד לשירותך! 😊<br><br>
+                           אם יש לך עוד שאלות או בעיות, אני כאן בשבילך 24/7.
+                           אפשר גם להגיע ישירות לנציג אנושי אם צריך.`;
+            }
+            else {
+                response = `הבנתי את הבקשה שלך. 🤔<br><br>
+                           האם תוכל לפרט יותר כדי שאוכל לעזור לך בצורה הטובה ביותר?<br><br>
+                           או שאתה מעדיף שאני אפתח לך פניה חדשה ואחבר אותך לנציג שיטפל בזה אישית?`;
+            }
+            
+            addAIMessage(response);
+        }
+
+        function createTicket(title, description) {
+            // Simulate ticket creation
+            console.log('Creating ticket:', title, description);
+            
+            // Update tickets count
+            const currentCount = parseInt(document.getElementById('ticketsCount').textContent);
+            document.getElementById('ticketsCount').textContent = currentCount + 1;
+            
+            // Add success message
+            setTimeout(() => {
+                addAIMessage(`✅ הפניה נוצרה בהצלחה!<br><br>
+                             מספר פניה: <strong>TKT-${Date.now()}</strong><br>
+                             נציג יחזור אליך בקרוב.`);
+            }, 2000);
+        }
+
+        // Other functions
+        function newTicketViaAI() {
+            document.getElementById('messageInput').value = 'אני רוצה לפתוח פניה חדשה';
+            sendMessage();
+        }
+
+        function openTicket(ticketNumber) {
+            addAIMessage(`פותח פניה ${ticketNumber}...<br><br>
+                         📋 <strong>סטטוס:</strong> פתוח<br>
+                         👤 <strong>נציג מטפל:</strong> מיכל לוי<br>
+                         📅 <strong>נפתח:</strong> לפני יום<br><br>
+                         האם תרצה לראות את ההיסטוריה המלאה או להוסיף עדכון?`);
+        }
+
+        function viewAllTickets() {
+            addAIMessage(`הנה כל הפניות שלך: 📋<br><br>
+                         🟢 <strong>TKT-2025-001</strong> - בעיה בהתחברות (חדש)<br>
+                         🟡 <strong>TKT-2025-015</strong> - שינוי תוכנית (פתוח)<br>
+                         ✅ <strong>TKT-2025-008</strong> - שאלה על תמחור (נפתר)<br><br>
+                         איזה פניה תרצה לראות?`);
+        }
+
+        function downloadHistory() {
+            addAIMessage(`מכין את ההיסטוריה להורדה... 📥<br><br>
+                         הקובץ יכלול:<br>
+                         • כל הפניות שלך<br>
+                         • תאריכים ופרטים<br>
+                         • תכתובות<br><br>
+                         ההורדה תתחיל תוך כמה שניות.`);
+        }
+
+        function logout() {
+            if (confirm('האם אתה בטוח שברצונך לצאת?')) {
+                location.reload();
+            }
+        }
+
+        // Initialize
+        if (!isLoggedIn) {
+            // Show login modal on page load
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        // Auto-login for demo (remove in production)
+        setTimeout(() => {
+            if (!isLoggedIn) {
+                document.getElementById('email').value = 'yossi@example.com';
+                document.getElementById('phone').value = '050-1234567';
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
