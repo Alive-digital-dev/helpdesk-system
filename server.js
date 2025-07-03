@@ -22,7 +22,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // Database connection
-const dbConfig = {
+const dbConfig = process.env.DATABASE_URL ? {
+    uri: process.env.DATABASE_URL,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+} : {
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root', 
     password: process.env.DB_PASSWORD || '',
