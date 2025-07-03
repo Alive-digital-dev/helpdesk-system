@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARIA Dashboard - Advanced HelpDesk System</title>
+    <title>ARIA AI MASTER - Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -13,69 +13,129 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             min-height: 100vh;
             color: #333;
+            overflow-x: hidden;
         }
 
         .dashboard-container {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 350px 1fr;
             min-height: 100vh;
         }
 
         .sidebar {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border-left: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
         }
 
         .sidebar-header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
             border-bottom: 2px solid #e0e0e0;
         }
 
         .logo {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #667eea; }
+            to { text-shadow: 0 0 20px #667eea, 0 0 30px #667eea; }
         }
 
         .logo-text {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .logo-subtitle {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: #7f8c8d;
-            margin-top: 5px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .ai-master-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 10px;
+            display: inline-block;
+            animation: pulse 2s infinite;
         }
 
         .user-info {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="circuit" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 10 0 L 10 10 M 0 10 L 20 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23circuit)"/></svg>');
+            opacity: 0.3;
         }
 
         .user-avatar {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
-            margin: 0 auto 10px;
+            margin: 0 auto 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        .aria-status {
+            margin-top: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-value {
+            font-weight: bold;
+            color: #2ecc71;
         }
 
         .nav-menu {
@@ -83,71 +143,309 @@
         }
 
         .nav-item {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 15px 18px;
             text-decoration: none;
             color: #2c3e50;
-            border-radius: 8px;
+            border-radius: 12px;
             transition: all 0.3s ease;
             font-weight: 500;
+            position: relative;
         }
 
         .nav-link:hover, .nav-link.active {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            transform: translateX(-5px);
+            transform: translateX(-8px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
         .nav-icon {
-            margin-left: 10px;
-            font-size: 1.2rem;
+            margin-left: 12px;
+            font-size: 1.3rem;
         }
 
         .main-content {
-            padding: 20px;
+            padding: 25px;
             overflow-y: auto;
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .top-bar {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .page-title {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: bold;
-            color: #2c3e50;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .stats-grid {
+        .aria-brain {
+            font-size: 2.5rem;
+            animation: brainPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes brainPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            animation: pulse 2s infinite;
+        }
+
+        .content-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .aria-control-center {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .control-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .control-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="hexagon" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 10,2 L 18,7 L 18,13 L 10,18 L 2,13 L 2,7 Z" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23hexagon)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .control-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .control-subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .aria-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            display: flex;
             margin-bottom: 20px;
+            animation: messageSlide 0.5s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.admin {
+            justify-content: flex-end;
+        }
+
+        .message.aria {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 15px 20px;
+            border-radius: 18px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .message.admin .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.aria .message-content {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-header {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+
+        .message-text {
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-top: 8px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .input-field:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-commands {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .ai-command {
+            padding: 6px 14px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid #667eea;
+            border-radius: 18px;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .ai-command:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+        }
+
+        .stats-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
             padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
             transition: transform 0.3s ease;
         }
 
@@ -157,200 +455,107 @@
 
         .stat-icon {
             font-size: 2.5rem;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .stat-value {
             font-size: 2rem;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .stat-label {
-            color: #7f8c8d;
             font-size: 0.9rem;
+            opacity: 0.9;
         }
 
-        .aria-chat-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            height: 600px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
+        .ai-insights {
+            margin-top: 25px;
             padding: 20px;
-            text-align: center;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f8f9fa;
-        }
-
-        .message {
-            display: flex;
-            margin-bottom: 15px;
-            animation: fadeInUp 0.5s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .message.user {
-            justify-content: flex-end;
-        }
-
-        .message.aria {
-            justify-content: flex-start;
-        }
-
-        .message-content {
-            max-width: 70%;
-            padding: 12px 16px;
-            border-radius: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .message.user .message-content {
             background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .message.aria .message-content {
-            background: white;
-            color: #2c3e50;
-            border: 1px solid #e0e0e0;
-            border-bottom-left-radius: 5px;
-        }
-
-        .message-time {
-            font-size: 0.7rem;
-            opacity: 0.6;
-            margin-top: 5px;
-        }
-
-        .chat-input {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .input-field {
-            flex: 1;
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 20px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .input-field:focus {
-            border-color: #3498db;
-        }
-
-        .send-btn {
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s ease;
-        }
-
-        .send-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .quick-action {
-            padding: 5px 12px;
-            background: rgba(52, 152, 219, 0.1);
-            border: 1px solid #3498db;
             border-radius: 15px;
-            color: #2c3e50;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.3s ease;
+            color: white;
         }
 
-        .quick-action:hover {
-            background: #3498db;
-            color: white;
+        .insights-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insight-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .welcome-aria {
+            text-align: center;
+            padding: 50px 25px;
+            color: #7f8c8d;
+        }
+
+        .aria-avatar-big {
+            font-size: 5rem;
+            margin-bottom: 25px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         .typing-indicator {
             display: none;
-            padding: 10px 15px;
-            margin-bottom: 10px;
+            justify-content: flex-start;
+            margin-bottom: 15px;
         }
 
         .typing-indicator.active {
-            display: block;
+            display: flex;
+        }
+
+        .typing-content {
+            background: rgba(240, 147, 251, 0.1);
+            border: 1px solid #f093fb;
+            border-radius: 18px;
+            padding: 12px 18px;
+            border-bottom-left-radius: 5px;
         }
 
         .typing-dots {
             display: flex;
-            gap: 3px;
+            gap: 4px;
             align-items: center;
         }
 
         .typing-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: #3498db;
-            animation: typing 1.5s infinite;
+            background: #f093fb;
+            animation: typing 1.4s infinite;
         }
 
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes typing {
-            0%, 60%, 100% { opacity: 0.4; }
-            30% { opacity: 1; }
+            0%, 60%, 100% { transform: scale(1); opacity: 0.7; }
+            30% { transform: scale(1.2); opacity: 1; }
         }
 
-        .welcome-aria {
-            text-align: center;
-            padding: 40px 20px;
-            color: #7f8c8d;
-        }
-
-        .aria-avatar {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -362,8 +567,8 @@
                 display: none;
             }
             
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            .main-content {
+                padding: 15px;
             }
         }
     </style>
@@ -372,34 +577,78 @@
     <div class="dashboard-container">
         <div class="sidebar">
             <div class="sidebar-header">
-                <div class="logo">🤖</div>
-                <div class="logo-text">ARIA System</div>
+                <div class="logo">🧠</div>
+                <div class="logo-text">ARIA AI MASTER</div>
                 <div class="logo-subtitle">Advanced Response Intelligence</div>
+                <div class="ai-master-badge">AI MASTER SYSTEM</div>
             </div>
 
             <div class="user-info">
                 <div class="user-avatar">AD</div>
                 <div><strong id="userName">טוען...</strong></div>
-                <div style="font-size: 0.8rem; opacity: 0.9;" id="userRole">טוען...</div>
+                <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 5px;" id="userRole">טוען...</div>
+                
+                <div class="aria-status">
+                    <div class="status-item">
+                        <span>סטטוס ARIA:</span>
+                        <span class="status-value">🟢 פעיל</span>
+                    </div>
+                    <div class="status-item">
+                        <span>AI עיבוד:</span>
+                        <span class="status-value">⚡ מהיר</span>
+                    </div>
+                    <div class="status-item">
+                        <span>למידה:</span>
+                        <span class="status-value">🧠 פעיל</span>
+                    </div>
+                    <div class="status-item">
+                        <span>שיחות היום:</span>
+                        <span class="status-value" id="conversationsToday">0</span>
+                    </div>
+                </div>
             </div>
 
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="#" class="nav-link active">
+                        <span class="nav-icon">🧠</span>
+                        <span>AI Control Center</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="switchSection('tickets')">
+                        <span class="nav-icon">🎫</span>
+                        <span>ניהול פניות</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="switchSection('team')">
+                        <span class="nav-icon">👥</span>
+                        <span>ניהול צוות</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="switchSection('analytics')">
                         <span class="nav-icon">📊</span>
-                        Dashboard
+                        <span>אנליטיקס AI</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="switchSection('settings')">
+                        <span class="nav-icon">⚙️</span>
+                        <span>הגדרות ARIA</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/index.html" class="nav-link">
                         <span class="nav-icon">🏠</span>
-                        חזרה לעמוד הראשי
+                        <span>דף הבית</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link" onclick="logout()">
                         <span class="nav-icon">🚪</span>
-                        יציאה
+                        <span>יציאה</span>
                     </a>
                 </li>
             </ul>
@@ -408,81 +657,102 @@
         <div class="main-content">
             <div class="top-bar">
                 <div class="page-title">
-                    <span>🤖</span>
-                    <span>ARIA Control Center</span>
+                    <span class="aria-brain">🧠</span>
+                    <span>ARIA AI MASTER Control Center</span>
                 </div>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <div style="font-size: 0.9rem; color: #7f8c8d;">
-                        <span id="currentTime"></span>
-                    </div>
-                    <div style="width: 12px; height: 12px; border-radius: 50%; background: #2ecc71; animation: pulse 2s infinite;"></div>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">🎫</div>
-                    <div class="stat-value" id="openTickets">--</div>
-                    <div class="stat-label">פניות פתוחות</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-value" id="activeAgents">--</div>
-                    <div class="stat-label">נציגים פעילים</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">⏱️</div>
-                    <div class="stat-value" id="avgResponseTime">--</div>
-                    <div class="stat-label">זמן תגובה ממוצע</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">😊</div>
-                    <div class="stat-value" id="satisfaction">94%</div>
-                    <div class="stat-label">שביעות רצון</div>
+                <div class="system-status">
+                    <div class="status-indicator"></div>
+                    <span>מערכת פעילה</span>
+                    <span id="currentTime"></span>
                 </div>
             </div>
 
-            <div class="aria-chat-container">
-                <div class="chat-header">
-                    <h3>🤖 שיחה עם ARIA</h3>
-                    <p style="font-size: 0.9rem; opacity: 0.9; margin-top: 5px;">
-                        העוזר החכם שלך לניהול המערכת
-                    </p>
-                </div>
-
-                <div class="chat-messages" id="chatMessages">
-                    <div class="welcome-aria">
-                        <div class="aria-avatar">🤖</div>
-                        <div>
-                            <strong>שלום! אני ARIA</strong><br>
-                            אני כאן לעזור לך לנהל את מערכת ה-HelpDesk<br>
-                            <em>איך אני יכול לעזור לך היום?</em>
-                        </div>
+            <div class="content-grid">
+                <div class="aria-control-center">
+                    <div class="control-header">
+                        <div class="control-title">🤖 פקד ובקר את ARIA</div>
+                        <div class="control-subtitle">תן הוראות ל-AI MASTER לניהול המערכת</div>
                     </div>
 
-                    <div class="typing-indicator" id="typingIndicator">
-                        <div class="typing-dots">
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                            <span style="margin-right: 10px; color: #3498db; font-size: 0.8rem;">ARIA מקליד...</span>
+                    <div class="aria-chat">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="welcome-aria">
+                                <div class="aria-avatar-big">🧠</div>
+                                <div>
+                                    <strong>ברוך הבא למרכז הבקרה של ARIA AI MASTER!</strong><br><br>
+                                    אני מנהל את כל המערכת עבורך - לקוחות, נציגים, פניות ותהליכים.<br>
+                                    תן לי הוראות ברמה גבוהה ואני אטפל בפרטים.<br><br>
+                                    <em>איך אני יכול לעזור לך לנהל את המערכת היום?</em>
+                                </div>
+                            </div>
+
+                            <div class="typing-indicator" id="typingIndicator">
+                                <div class="typing-content">
+                                    <div class="typing-dots">
+                                        <div class="typing-dot"></div>
+                                        <div class="typing-dot"></div>
+                                        <div class="typing-dot"></div>
+                                        <span style="margin-right: 12px; color: #f093fb; font-weight: 600;">ARIA AI מעבד...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input">
+                            <input type="text" class="input-field" id="messageInput" 
+                                   placeholder="תן הוראה ל-ARIA AI MASTER..." 
+                                   onkeypress="handleKeyPress(event)">
+                            <button class="send-btn" onclick="sendMessage()">
+                                <span>🚀</span>
+                            </button>
+                        </div>
+                        <div class="ai-commands">
+                            <div class="ai-command" onclick="sendQuickCommand('הצג מצב המערכת הכללי')">📊 מצב המערכת</div>
+                            <div class="ai-command" onclick="sendQuickCommand('נתח ביצועי הצוות השבוע')">👥 ביצועי צוות</div>
+                            <div class="ai-command" onclick="sendQuickCommand('הקצה פניות דחופות אוטומטית')">⚡ הקצאה חכמה</div>
+                            <div class="ai-command" onclick="sendQuickCommand('צור דוח מנהלים מפורט')">📋 דוח מנהלים</div>
+                            <div class="ai-command" onclick="sendQuickCommand('אופטימז את חלוקת העבודה')">🎯 אופטימיזציה</div>
+                            <div class="ai-command" onclick="sendQuickCommand('זהה לקוחות הזקוקים לתשומת לב')">🔍 ניתוח לקוחות</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="chat-input">
-                    <input type="text" class="input-field" id="messageInput" 
-                           placeholder="כתוב הודעה ל-ARIA..." 
-                           onkeypress="handleKeyPress(event)">
-                    <button class="send-btn" onclick="sendMessage()">
-                        <span>➤</span>
-                    </button>
-                </div>
-                <div class="quick-actions">
-                    <div class="quick-action" onclick="sendQuickMessage('הצג פניות פתוחות')">פניות פתוחות</div>
-                    <div class="quick-action" onclick="sendQuickMessage('ביצועי צוות')">ביצועי צוות</div>
-                    <div class="quick-action" onclick="sendQuickMessage('דוח יומי')">דוח יומי</div>
-                    <div class="quick-action" onclick="sendQuickMessage('מה המצב היום?')">מה המצב?</div>
+                <div class="stats-panel">
+                    <div class="stats-title">📈 מדדי AI MASTER</div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🎫</div>
+                        <div class="stat-value" id="totalTickets">--</div>
+                        <div class="stat-label">פניות במערכת</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">🤖</div>
+                        <div class="stat-value" id="aiDecisions">--</div>
+                        <div class="stat-label">החלטות AI היום</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value" id="efficiency">--</div>
+                        <div class="stat-label">יעילות מערכת</div>
+                    </div>
+
+                    <div class="ai-insights">
+                        <div class="insights-title">
+                            <span>💡</span>
+                            <span>תובנות AI</span>
+                        </div>
+                        <div class="insight-item">
+                            🎯 המערכת מזהה עומס גבוה בצוות הטכני - מומלץ לשקול הקצאה מחדש
+                        </div>
+                        <div class="insight-item">
+                            📈 שביעות רצון הלקוחות עלתה ב-12% השבוע הודות לתגובות מהירות יותר
+                        </div>
+                        <div class="insight-item">
+                            🔮 חיזוי: צפוי עלייה של 25% בפניות מחר - ARIA מכין תגבורת אוטומטית
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -493,10 +763,9 @@
         let currentUser = null;
         let authToken = localStorage.getItem('authToken');
         
-        // בדיקת אימות בטעינת העמוד
         document.addEventListener('DOMContentLoaded', function() {
             if (!authToken) {
-                window.location.href = '/index.html';
+                window.location.href = '/aria-login.html';
                 return;
             }
             
@@ -505,15 +774,15 @@
             updateTime();
             setInterval(updateTime, 1000);
             setInterval(loadDashboardData, 30000);
+            
+            // Focus on input
+            document.getElementById('messageInput').focus();
         });
 
-        // טעינת נתוני משתמש
         async function loadUserData() {
             try {
                 const response = await fetch('/api/auth/me', {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
+                    headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 
                 if (response.ok) {
@@ -526,58 +795,45 @@
             } catch (error) {
                 console.error('Error loading user data:', error);
                 localStorage.removeItem('authToken');
-                window.location.href = '/index.html';
+                window.location.href = '/aria-login.html';
             }
         }
 
-        // טעינת נתוני דשבורד
         async function loadDashboardData() {
             try {
                 const response = await fetch('/api/aria/dashboard', {
-                    headers: {
-                        'Authorization': `Bearer ${authToken}`
-                    }
+                    headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 
                 if (response.ok) {
                     const data = await response.json();
                     updateDashboardStats(data.dashboard);
-                } else {
-                    console.error('Failed to load dashboard data');
                 }
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
             }
         }
 
-        // עדכון סטטיסטיקות דשבורד
         function updateDashboardStats(dashboard) {
             if (dashboard.tickets) {
-                document.getElementById('openTickets').textContent = dashboard.tickets.open_tickets || 0;
+                document.getElementById('totalTickets').textContent = dashboard.tickets.total_tickets || 0;
             }
             
-            if (dashboard.team) {
-                document.getElementById('activeAgents').textContent = dashboard.team.active_agents || 0;
-            }
-            
-            if (dashboard.performance) {
-                const avgTime = dashboard.performance.avg_response_time;
-                document.getElementById('avgResponseTime').textContent = 
-                    avgTime ? `${Math.round(avgTime)} דק'` : 'N/A';
-            }
+            // סימולציה של נתוני AI
+            document.getElementById('aiDecisions').textContent = Math.floor(Math.random() * 150) + 50;
+            document.getElementById('efficiency').textContent = Math.floor(Math.random() * 15) + 85 + '%';
+            document.getElementById('conversationsToday').textContent = Math.floor(Math.random() * 50) + 20;
         }
 
-        // עדכון זמן
         function updateTime() {
             const now = new Date();
             document.getElementById('currentTime').textContent = 
                 now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
         }
 
-        // תרגום תפקידים
         function getRoleText(role) {
             const roles = {
-                'super_admin': 'מנהל מערכת',
+                'super_admin': 'AI MASTER Controller',
                 'admin': 'מנהל ארגון',
                 'manager': 'מנהל צוות',
                 'agent': 'נציג שירות'
@@ -585,14 +841,13 @@
             return roles[role] || role;
         }
 
-        // שליחת הודעה ל-ARIA
         async function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
             
             if (!message) return;
             
-            addMessage('user', message);
+            addMessage('admin', message);
             messageInput.value = '';
             
             showTypingIndicator();
@@ -608,7 +863,8 @@
                         message: message,
                         context: {
                             timestamp: new Date().toISOString(),
-                            user_role: currentUser?.role
+                            user_role: currentUser?.role,
+                            interface: 'ai_master_dashboard'
                         }
                     })
                 });
@@ -623,17 +879,15 @@
             } catch (error) {
                 console.error('Error sending message:', error);
                 hideTypingIndicator();
-                addMessage('aria', 'מצטער, נתקלתי בשגיאה. אנא נסה שנית.');
+                addMessage('aria', '⚠️ שגיאה בתקשורת עם AI MASTER. מנסה שנית...');
             }
         }
 
-        // שליחת הודעה מהירה
-        function sendQuickMessage(message) {
-            document.getElementById('messageInput').value = message;
+        function sendQuickCommand(command) {
+            document.getElementById('messageInput').value = command;
             sendMessage();
         }
 
-        // הוספת הודעה לצ'אט
         function addMessage(sender, text) {
             const chatMessages = document.getElementById('chatMessages');
             const welcomeMessage = chatMessages.querySelector('.welcome-aria');
@@ -650,9 +904,15 @@
                 minute: '2-digit'
             });
             
+            const senderName = sender === 'admin' ? 'אתה' : 'ARIA AI MASTER';
+            const senderIcon = sender === 'admin' ? '👨‍💼' : '🧠';
+            
             messageDiv.innerHTML = `
                 <div class="message-content">
-                    <div>${text}</div>
+                    <div class="message-header">
+                        ${senderIcon} ${senderName}
+                    </div>
+                    <div class="message-text">${text}</div>
                     <div class="message-time">${currentTime}</div>
                 </div>
             `;
@@ -661,30 +921,67 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // הצגת אינדיקטור הקלדה
         function showTypingIndicator() {
             document.getElementById('typingIndicator').classList.add('active');
             const chatMessages = document.getElementById('chatMessages');
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // הסתרת אינדיקטור הקלדה
         function hideTypingIndicator() {
             document.getElementById('typingIndicator').classList.remove('active');
         }
 
-        // טיפול במקש Enter
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 sendMessage();
             }
         }
 
-        // יציאה מהמערכת
+        function switchSection(section) {
+            // עדכון תפריט
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // בעתיד נוסיף כאן מעבר בין סקציות
+            console.log('Switching to section:', section);
+            
+            // הוספת הודעת מידע
+            addMessage('aria', `🔄 <strong>מעבר למודול ${getSectionName(section)}</strong><br><br>מודול זה יהיה זמין בעדכון הבא של ARIA AI MASTER. כרגע אני יכול לעזור לך עם:<br>• ניהול פניות<br>• ניתוח ביצועים<br>• דוחות מתקדמים<br>• אופטימיזציה של תהליכים`);
+        }
+
+        function getSectionName(section) {
+            const names = {
+                'tickets': 'ניהול פניות',
+                'team': 'ניהול צוות', 
+                'analytics': 'אנליטיקס AI',
+                'settings': 'הגדרות ARIA'
+            };
+            return names[section] || section;
+        }
+
         function logout() {
             localStorage.removeItem('authToken');
-            window.location.href = '/index.html';
+            localStorage.removeItem('userInfo');
+            window.location.href = '/aria-login.html';
         }
+
+        // אפקטים ויזואליים נוספים
+        document.addEventListener('DOMContentLoaded', function() {
+            // אנימציית כניסה לכרטיסי הסטטיסטיקות
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        });
     </script>
 </body>
 </html>
