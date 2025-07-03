@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARIA - Advanced HelpDesk System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+            animation: drift 20s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            33% { transform: translateX(-20px) translateY(-10px); }
+            66% { transform: translateX(20px) translateY(-20px); }
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .logo-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .logo-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .logo-description {
+            color: #495057;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .login-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-form {
+            display: none;
+        }
+
+        .login-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        .demo-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #bee5eb;
+            font-size: 0.9rem;
+        }
+
+        .demo-credentials {
+            margin-top: 10px;
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .features-preview {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateX(-5px);
+            color: #667eea;
+        }
+
+        .feature-icon {
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+
+        .version-info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                margin: 20px;
+                padding: 30px 25px;
+            }
+            
+            .logo {
+                font-size: 3rem;
+            }
+            
+            .logo-text {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <div class="logo">🤖</div>
+            <h1 class="logo-text">ARIA</h1>
+            <p class="logo-subtitle">Advanced Response Intelligence Assistant</p>
+            <p class="logo-description">מערכת HelpDesk מתקדמת עם בינה מלאכותית</p>
+        </div>
+
+        <div class="login-tabs">
+            <button class="tab-button active" onclick="switchTab('staff')">צוות</button>
+            <button class="tab-button" onclick="switchTab('customer')">לקוחות</button>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- טופס התחברות צוות -->
+        <form class="login-form active" id="staffLogin">
+            <div class="form-group">
+                <label class="form-label">אימייל</label>
+                <input type="email" class="form-input" id="staffEmail" placeholder="הכנס אימייל" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">סיסמה</label>
+                <input type="password" class="form-input" id="staffPassword" placeholder="הכנס סיסמה" required>
+            </div>
+            
+            <button type="submit" class="login-button" id="staffLoginBtn">
+                <span class="button-text">כניסה למערכת</span>
+                <div class="loading-spinner" id="staffSpinner"></div>
+            </button>
+
+            <div class="demo-info">
+                <strong>🎯 משתמשי דמו:</strong>
+                <div class="demo-credentials">
+                    <div><strong>מנהל מערכת:</strong> admin@helpdesk.com / admin123</div>
+                    <div><strong>מנהל ארגון:</strong> admin@demo.com / demo123</div>
+                </div>
+            </div>
+        </form>
+
+        <!-- טופס התחברות לקוחות -->
+        <form class="login-form" id="customerLogin">
+            <div class="form-group">
+                <label class="form-label">אימייל</label>
+                <input type="email" class="form-input" id="customerEmail" placeholder="הכנס אימייל" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">מספר טלפון</label>
+                <input type="tel" class="form-input" id="customerPhone" placeholder="050-1234567" required>
+            </div>
+            
+            <button type="submit" class="login-button" id="customerLoginBtn">
+                <span class="button-text">כניסה לפורטל לקוחות</span>
+                <div class="loading-spinner" id="customerSpinner"></div>
+            </button>
+
+            <div class="demo-info">
+                <strong>🎯 לקוח דמו:</strong>
+                <div class="demo-credentials">
+                    <div><strong>אימייל:</strong> customer@demo.com</div>
+                    <div><strong>טלפון:</strong> 050-1234567</div>
+                </div>
+            </div>
+        </form>
+
+        <div class="features-preview">
+            <h4 style="margin-bottom: 15px; color: #495057;">✨ תכונות המערכת</h4>
+            <div class="feature-item">
+                <span>ממשק שיחה חכם עם ARIA</span>
+                <span class="feature-icon">🤖</span>
+            </div>
+            <div class="feature-item">
+                <span>ניהול פניות אוטומטי</span>
+                <span class="feature-icon">🎫</span>
+            </div>
+            <div class="feature-item">
+                <span>דוחות ותובנות מתקדמים</span>
+                <span class="feature-icon">📊</span>
+            </div>
+            <div class="feature-item">
+                <span>ניתוח ביצועים בזמן אמת</span>
+                <span class="feature-icon">⚡</span>
+            </div>
+            <div class="feature-item">
+                <span>אינטגרציה עם WhatsApp ו-SMS</span>
+                <span class="feature-icon">📱</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="version-info">
+        ARIA v2.0 - Advanced HelpDesk System | helpdesk.kai-zen.co.il
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let currentTab = 'staff';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.login-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(tab + 'Login').classList.add('active');
+            
+            hideError();
+        }
+
+        document.getElementById('staffLogin').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('staffEmail').value;
+            const password = document.getElementById('staffPassword').value;
+            const button = document.getElementById('staffLoginBtn');
+            const spinner = document.getElementById('staffSpinner');
+            const buttonText = button.querySelector('.button-text');
+            
+            if (!email || !password) {
+                showError('אנא מלא את כל השדות');
+                return;
+            }
+            
+            try {
+                setLoadingState(button, spinner, buttonText, true);
+                hideError();
+                
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.user));
+                    
+                    buttonText.textContent = 'מתחבר...';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/aria-dashboard.html';
+                    }, 1000);
+                } else {
+                    throw new Error(data.message || 'שגיאה בהתחברות');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(error.message || 'שגיאה בהתחברות. אנא נסה שנית.');
+            } finally {
+                setLoadingState(button, spinner, buttonText, false);
+            }
+        });
+
+        document.getElementById('customerLogin').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('customerEmail').value;
+            const phone = document.getElementById('customerPhone').value;
+            const button = document.getElementById('customerLoginBtn');
+            const spinner = document.getElementById('customerSpinner');
+            const buttonText = button.querySelector('.button-text');
+            
+            if (!email || !phone) {
+                showError('אנא מלא את כל השדות');
+                return;
+            }
+            
+            try {
+                setLoadingState(button, spinner, buttonText, true);
+                hideError();
+                
+                const response = await fetch(`${API_BASE}/api/auth/customer-login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, phone })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    localStorage.setItem('customerToken', data.token);
+                    localStorage.setItem('customerInfo', JSON.stringify(data.customer));
+                    
+                    buttonText.textContent = 'מתחבר...';
+                    
+                    setTimeout(() => {
+                        window.location.href = '/customer-portal.html';
+                    }, 1000);
+                } else {
+                    throw new Error(data.message || 'שגיאה בהתחברות');
+                }
+            } catch (error) {
+                console.error('Customer login error:', error);
+                showError(error.message || 'שגיאה בהתחברות. בדוק את הפרטים ונסה שנית.');
+            } finally {
+                setLoadingState(button, spinner, buttonText, false);
+            }
+        });
+
+        function setLoadingState(button, spinner, buttonText, isLoading) {
+            button.disabled = isLoading;
+            
+            if (isLoading) {
+                buttonText.style.display = 'none';
+                spinner.style.display = 'block';
+            } else {
+                buttonText.style.display = 'block';
+                spinner.style.display = 'none';
+                buttonText.textContent = currentTab === 'staff' ? 'כניסה למערכת' : 'כניסה לפורטל לקוחות';
+            }
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            errorElement.style.opacity = '0';
+            setTimeout(() => {
+                errorElement.style.opacity = '1';
+            }, 100);
+        }
+
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const authToken = localStorage.getItem('authToken');
+            const customerToken = localStorage.getItem('customerToken');
+            
+            if (authToken) {
+                window.location.href = '/aria-dashboard.html';
+            } else if (customerToken) {
+                window.location.href = '/customer-portal.html';
+            }
+            
+            if (window.location.hash === '#demo') {
+                document.getElementById('staffEmail').value = 'admin@demo.com';
+                document.getElementById('staffPassword').value = 'demo123';
+            }
+        });
+
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const activeForm = document.querySelector('.login-form.active');
+                if (activeForm) {
+                    activeForm.querySelector('button[type="submit"]').click();
+                }
+            }
+        });
+
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+
+        document.querySelector('.logo').addEventListener('click', function() {
+            this.style.animation = 'none';
+            setTimeout(() => {
+                this.style.animation = 'bounce 2s ease-in-out infinite';
+            }, 100);
+        });
+
+        function updateSystemStatus() {
+            fetch(`${API_BASE}/api/health`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelector('.version-info').innerHTML = 
+                        `ARIA v2.0 - מערכת פעילה ✅ | helpdesk.kai-zen.co.il`;
+                }
+            })
+            .catch(() => {
+                document.querySelector('.version-info').innerHTML = 
+                    'ARIA v2.0 - בודק חיבור... ⏳';
+            });
+        }
+
+        updateSystemStatus();
+        setInterval(updateSystemStatus, 30000);
+    </script>
+</body>
+</html>
