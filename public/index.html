@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpDesk Pro - מערכת ניהול פניות מתקדמת</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .main-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .action-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            max-width: 300px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .action-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .card-description {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .card-button:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .features-title {
+            text-align: center;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-left: 15px;
+            color: #3498db;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .feature-desc {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        .quick-ticket {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎫</div>
+            <h1 class="main-title">HelpDesk Pro</h1>
+            <p class="subtitle">מערכת ניהול פניות מתקדמת עם בינה מלאכותית</p>
+        </div>
+
+        <div class="actions">
+            <div class="action-card" onclick="location.href='/aria-login.html'">
+                <div class="card-icon">🤖</div>
+                <h3 class="card-title">כניסה לצוות</h3>
+                <p class="card-description">
+                    גישה למערכת ARIA המתקדמת<br>
+                    לניהול פניות ועבודה עם AI
+                </p>
+                <button class="card-button">התחבר לARIA</button>
+            </div>
+
+            <div class="action-card" onclick="toggleTicketForm()">
+                <div class="card-icon">📞</div>
+                <h3 class="card-title">פתח פניה</h3>
+                <p class="card-description">
+                    צור פניה חדשה במערכת<br>
+                    וקבל מענה מהיר ומקצועי
+                </p>
+                <button class="card-button">פתח פניה חדשה</button>
+            </div>
+
+            <div class="action-card" onclick="location.href='/aria-login.html#customer'">
+                <div class="card-icon">👤</div>
+                <h3 class="card-title">פורטל לקוחות</h3>
+                <p class="card-description">
+                    מעקב אחר פניות קיימות<br>
+                    ושיחה עם נציגי השירות
+                </p>
+                <button class="card-button">כניסת לקוחות</button>
+            </div>
+        </div>
+
+        <div class="quick-ticket" id="ticketForm" style="display: none;">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">🎫 פתיחת פניה חדשה</h2>
+            <form id="newTicketForm">
+                <div class="form-group">
+                    <label class="form-label">שם מלא *</label>
+                    <input type="text" class="form-input" id="customerName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">אימייל *</label>
+                    <input type="email" class="form-input" id="customerEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">טלפון *</label>
+                    <input type="tel" class="form-input" id="customerPhone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">נושא הפניה *</label>
+                    <input type="text" class="form-input" id="ticketTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">תיאור הבעיה *</label>
+                    <textarea class="form-textarea" id="ticketDescription" rows="5" required></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">שלח פניה</button>
+            </form>
+        </div>
+
+        <div class="features">
+            <h2 class="features-title">🚀 תכונות המערכת</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🤖</div>
+                    <div class="feature-text">
+                        <div class="feature-name">ARIA AI Assistant</div>
+                        <div class="feature-desc">עוזר חכם לניהול פניות וניתוח ביצועים</div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">
+                        <div class="feature-name">תגובה מהירה</div>
+                        <div class="feature-desc">זמן תגובה ממוצע של פחות מ-5 דקות</div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-text">
+                        <div class="feature-name">דוחות מתקדמים</div>
+                        <div class="feature-desc">ניתוח מגמות ותובנות עסקיות</div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-text">
+                        <div class="feature-name">מולטי-ערוץ</div>
+                        <div class="feature-desc">WhatsApp, SMS, אימייל ועוד</div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🔒</div>
+                    <div class="feature-text">
+                        <div class="feature-name">אבטחה מתקדמת</div>
+                        <div class="feature-desc">הצפנה וגיבוי אוטומטי של הנתונים</div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">☁️</div>
+                    <div class="feature-text">
+                        <div class="feature-name">מבוסס ענן</div>
+                        <div class="feature-desc">גישה מכל מקום, בכל זמן</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 HelpDesk Pro with ARIA | מערכת ניהול פניות מתקדמת</p>
+            <p style="margin-top: 10px;">
+                <a href="/aria-login.html" style="color: white; text-decoration: none;">
+                    🤖 כניסה למערכת ARIA
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function toggleTicketForm() {
+            const form = document.getElementById('ticketForm');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                form.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        document.getElementById('newTicketForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            
+            try {
+                submitBtn.textContent = 'שולח...';
+                submitBtn.disabled = true;
+                
+                const formData = {
+                    customerName: document.getElementById('customerName').value,
+                    customerEmail: document.getElementById('customerEmail').value,
+                    customerPhone: document.getElementById('customerPhone').value,
+                    title: document.getElementById('ticketTitle').value,
+                    description: document.getElementById('ticketDescription').value
+                };
+                
+                const response = await fetch('/api/tickets', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`✅ פניה נוצרה בהצלחה!\nמספר פניה: ${result.ticketNumber}\n\nנציג יחזור אליך בהקדם`);
+                    e.target.reset();
+                    toggleTicketForm();
+                } else {
+                    throw new Error(result.message || 'שגיאה ביצירת הפניה');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ שגיאה ביצירת הפניה: ' + error.message);
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // אנימציות עדינות
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.action-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(50px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
