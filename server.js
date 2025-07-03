@@ -18,6 +18,31 @@ app.use(express.static('public'));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'helpdesk-secret';
 
+// Middleware for token authentication
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Access token required' });
+    }
+    
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ success: false, message: 'Invalid token' });
+        }
+        
+        // Convert token data to match database structure
+        req.user = {
+            id: user.userId,
+            email: user.email,
+            role: user.role,
+            organization_id: user.organizationId
+        };
+        next();
+    });
+};
+
 // Routes
 app.get('/api/health', async (req, res) => {
     try {
@@ -39,15 +64,18 @@ app.get('/api/health', async (req, res) => {
         }
         
         res.json({ 
+            success: true,
             status: 'OK', 
-            service: 'HelpDesk Pro SaaS',
+            service: 'HelpDesk Pro SaaS with ARIA',
             database: dbStatus,
             stats,
             timestamp: new Date().toISOString(),
-            version: '2.0.0'
+            version: '2.0.0',
+            aria_version: '1.0.0'
         });
     } catch (error) {
         res.status(500).json({ 
+            success: false,
             status: 'ERROR', 
             error: error.message,
             timestamp: new Date().toISOString()
@@ -61,7 +89,10 @@ app.post('/api/auth/login', async (req, res) => {
         const { email, password } = req.body;
         
         if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password required' });
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Email and password required' 
+            });
         }
         
         const users = await db.query(
@@ -70,14 +101,20 @@ app.post('/api/auth/login', async (req, res) => {
         );
         
         if (users.length === 0) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Invalid credentials' 
+            });
         }
         
         const user = users[0];
         const validPassword = await bcrypt.compare(password, user.password);
         
         if (!validPassword) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Invalid credentials' 
+            });
         }
         
         const token = jwt.sign(
@@ -97,16 +134,130 @@ app.post('/api/auth/login', async (req, res) => {
             user: {
                 id: user.id,
                 email: user.email,
-                fullName: user.full_name,
+                name: user.full_name,
                 role: user.role,
-                organizationId: user.organization_id
+                organization_id: user.organization_id
             }
         });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
     }
 });
+
+// Customer login for portal (simple email + phone verification)
+app.post('/api/auth/customer-login', async (req, res) => {
+    try {
+        const { email, phone } = req.body;
+        
+        if (!email || !phone) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Email and phone required' 
+            });
+        }
+        
+        const customers = await db.query(
+            'SELECT * FROM customers WHERE email = ? AND phone = ?',
+            [email, phone]
+        );
+        
+        if (customers.length === 0) {
+            return res.status(401).json({ 
+                success: false, 
+                message: 'לקוח לא נמצא עם הפרטים שצוינו' 
+            });
+        }
+        
+        const customer = customers[0];
+        
+        // Create simple token for customer
+        const token = jwt.sign(
+            { 
+                customerId: customer.id,
+                email: customer.email,
+                organizationId: customer.organization_id,
+                type: 'customer'
+            },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        
+        res.json({
+            success: true,
+            token,
+            customer: {
+                id: customer.id,
+                email: customer.email,
+                name: customer.full_name,
+                phone: customer.phone,
+                organizationId: customer.organization_id
+            }
+        });
+    } catch (error) {
+        console.error('Customer login error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
+});
+
+// Authentication endpoints נוספים עבור ARIA
+app.get('/api/auth/verify', authenticateToken, async (req, res) => {
+    try {
+        const [user] = await db.query(
+            'SELECT id, full_name as name, email, role, organization_id FROM users WHERE id = ?',
+            [req.user.id]
+        );
+        
+        if (user.length === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'User not found' 
+            });
+        }
+        
+        res.json({ success: true, user: user[0] });
+    } catch (error) {
+        console.error('Verify error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
+});
+
+// Get current user info for ARIA
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
+    try {
+        const [user] = await db.query(
+            'SELECT id, full_name as name, email, role, organization_id FROM users WHERE id = ?',
+            [req.user.id]
+        );
+        
+        if (user.length === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'User not found' 
+            });
+        }
+        
+        res.json(user[0]);
+    } catch (error) {
+        console.error('Get user error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error' 
+        });
+    }
+});
+
+// ARIA Routes - מערכת AI מתקדמת
+app.use('/api/aria', authenticateToken, require('./routes/aria'));
 
 // Create ticket
 app.post('/api/tickets', async (req, res) => {
@@ -114,7 +265,10 @@ app.post('/api/tickets', async (req, res) => {
         const { title, description, customerEmail, customerPhone, customerName } = req.body;
         
         if (!title || !description || !customerEmail || !customerPhone) {
-            return res.status(400).json({ error: 'Required fields missing' });
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Required fields missing' 
+            });
         }
         
         // Generate ticket number
@@ -155,7 +309,10 @@ app.post('/api/tickets', async (req, res) => {
         
     } catch (error) {
         console.error('Create ticket error:', error);
-        res.status(500).json({ error: 'Failed to create ticket' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to create ticket' 
+        });
     }
 });
 
@@ -173,8 +330,20 @@ app.get('/api/tickets', async (req, res) => {
         res.json({ success: true, tickets });
     } catch (error) {
         console.error('Get tickets error:', error);
-        res.status(500).json({ error: 'Failed to fetch tickets' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to fetch tickets' 
+        });
     }
+});
+
+// Static files routing - ARIA pages
+app.get('/aria-login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'aria-login.html'));
+});
+
+app.get('/aria-dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'aria-dashboard.html'));
 });
 
 // Static routes
@@ -186,7 +355,8 @@ app.get('/', (req, res) => {
 app.use('*', (req, res) => {
     res.status(404).json({ 
         error: 'Route not found',
-        path: req.originalUrl
+        path: req.originalUrl,
+        message: 'הנתיב שביקשת לא נמצא במערכת'
     });
 });
 
@@ -196,8 +366,10 @@ async function startServer() {
         await db.initialize();
         
         app.listen(PORT, '0.0.0.0', () => {
-            console.log(`🚀 HelpDesk Pro server running on port ${PORT}`);
+            console.log(`🚀 HelpDesk Pro with ARIA running on port ${PORT}`);
             console.log(`🌐 Landing page: http://localhost:${PORT}`);
+            console.log(`🤖 ARIA Login: http://localhost:${PORT}/aria-login.html`);
+            console.log(`📊 ARIA Dashboard: http://localhost:${PORT}/aria-dashboard.html`);
             console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
         });
     } catch (error) {
