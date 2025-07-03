@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketLy - דשבורד ניהול</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-260px);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-right: 3px solid transparent;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-right-color: #3498db;
+        }
+
+        .nav-link i {
+            margin-left: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-section {
+            margin: 1rem 0;
+            padding: 0 1.5rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-right: 260px;
+            transition: margin-right 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-right: 0;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: #f0f0f0;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .user-menu:hover {
+            background: #f0f0f0;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 2rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .stat-icon.new { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .stat-icon.open { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        .stat-icon.resolved { background: linear-gradient(45deg, #27ae60, #2ecc71); }
+        .stat-icon.urgent { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive { color: #27ae60; }
+        .stat-change.negative { color: #e74c3c; }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+
+        .action-btn.success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        /* Tickets Table */
+        .tickets-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tickets-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tickets-title {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .tickets-filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .tickets-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tickets-table th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: right;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tickets-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .tickets-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .ticket-number {
+            color: #3498db;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .ticket-number:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-badge.new { background: #e3f2fd; color: #1976d2; }
+        .status-badge.open { background: #fff3e0; color: #f57c00; }
+        .status-badge.pending { background: #fce4ec; color: #c2185b; }
+        .status-badge.resolved { background: #e8f5e8; color: #388e3c; }
+        .status-badge.closed { background: #f5f5f5; color: #616161; }
+
+        .priority-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .priority-badge.low { background: #e8f5e8; color: #4caf50; }
+        .priority-badge.medium { background: #fff3e0; color: #ff9800; }
+        .priority-badge.high { background: #ffebee; color: #f44336; }
+        .priority-badge.urgent { background: #b71c1c; color: white; }
+
+        .agent-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* WhatsApp-style Chat Interface */
+        .chat-section {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .chat-section.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: #128c7e;
+            color: white;
+            padding: 1rem;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-title {
+            font-weight: 600;
+        }
+
+        .chat-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #e5ddd5;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .message.sent {
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .message.received .message-bubble {
+            background: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.sent .message-bubble {
+            background: #dcf8c6;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-send {
+            background: #128c7e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Floating Chat Button */
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: #128c7e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-260px);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tickets-table {
+                font-size: 0.9rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .chat-section {
+                left: 10px;
+                right: 10px;
+                width: auto;
+            }
+
+            .chat-toggle {
+                left: 10px;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: #3498db;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+            margin-left: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">TicketLy</div>
+                <div class="user-info">מנהל מערכת</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">ראשי</div>
+                <div class="nav-item">
+                    <a href="#dashboard" class="nav-link active">
+                        <i class="fas fa-chart-line"></i>
+                        דשבורד
+                    </a>
+                </div>
+                
+                <div class="nav-section">ניהול פניות</div>
+                <div class="nav-item">
+                    <a href="#tickets" class="nav-link">
+                        <i class="fas fa-ticket-alt"></i>
+                        כל הפניות
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#new-tickets" class="nav-link">
+                        <i class="fas fa-plus-circle"></i>
+                        פניות חדשות
+                        <span class="notification-badge">5</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#chat" class="nav-link">
+                        <i class="fas fa-comments"></i>
+                        צ'אטים פעילים
+                    </a>
+                </div>
+                
+                <div class="nav-section">ניהול</div>
+                <div class="nav-item">
+                    <a href="#users" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        משתמשים
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#organizations" class="nav-link">
+                        <i class="fas fa-building"></i>
+                        ארגונים
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#analytics" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        דוחות ואנליטיקס
+                    </a>
+                </div>
+                
+                <div class="nav-section">הגדרות</div>
+                <div class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        הגדרות מערכת
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#integrations" class="nav-link">
+                        <i class="fas fa-plug"></i>
+                        אינטגרציות
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="#api" class="nav-link">
+                        <i class="fas fa-code"></i>
+                        API Keys
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">דשבורד ראשי</h1>
+                </div>
+                
+                <div class="header-right">
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    
+                    <div class="user-menu">
+                        <div class="user-avatar">א</div>
+                        <span>אדמין ראשי</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">פניות חדשות</div>
+                            <div class="stat-icon new">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                        </div>
+                        <div class="stat-number">24</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +12% מאתמול
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">פניות פתוחות</div>
+                            <div class="stat-icon open">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                        </div>
+                        <div class="stat-number">156</div>
+                        <div class="stat-change negative">
+                            <i class="fas fa-arrow-down"></i>
+                            -5% מאתמול
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">פניות נפתרו היום</div>
+                            <div class="stat-icon resolved">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="stat-number">89</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +23% מאתמול
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">פניות דחופות</div>
+                            <div class="stat-icon urgent">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                        <div class="stat-number">7</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-down"></i>
+                            -3 מאתמול
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>פעולות מהירות</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="openNewTicketModal()">
+                            <i class="fas fa-plus"></i>
+                            פניה חדשה
+                        </button>
+                        <button class="action-btn secondary">
+                            <i class="fas fa-user-plus"></i>
+                            הוסף נציג
+                        </button>
+                        <button class="action-btn success">
+                            <i class="fas fa-download"></i>
+                            ייצא דוח
+                        </button>
+                        <button class="action-btn" onclick="toggleChat()">
+                            <i class="fas fa-comments"></i>
+                            פתח צ'אט
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Tickets -->
+                <div class="tickets-section">
+                    <div class="tickets-header">
+                        <h3 class="tickets-title">פניות אחרונות</h3>
+                        <div class="tickets-filters">
+                            <select class="filter-select">
+                                <option>כל הסטטוסים</option>
+                                <option>חדש</option>
+                                <option>פתוח</option>
+                                <option>ממתין</option>
+                                <option>נפתר</option>
+                            </select>
+                            <select class="filter-select">
+                                <option>כל הדחיפויות</option>
+                                <option>נמוכה</option>
+                                <option>בינונית</option>
+                                <option>גבוהה</option>
+                                <option>דחוף</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <table class="tickets-table">
+                        <thead>
+                            <tr>
+                                <th>מספר פניה</th>
+                                <th>נושא</th>
+                                <th>לקוח</th>
+                                <th>סטטוס</th>
+                                <th>דחיפות</th>
+                                <th>נציג</th>
+                                <th>עודכן</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="#" class="ticket-number">TKT-2025-001</a></td>
+                                <td>בעיה בהתחברות למערכת</td>
+                                <td>יוסי כהן<br><small>yossi@example.com</small></td>
+                                <td><span class="status-badge new">חדש</span></td>
+                                <td><span class="priority-badge high">גבוהה</span></td>
+                                <td><span class="agent-avatar">מ</span> מיכל לוי</td>
+                                <td>לפני 5 דק'</td>
+                                <td>
+                                    <button class="action-btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" class="ticket-number">TKT-2025-002</a></td>
+                                <td>בקשה להחזר כספי</td>
+                                <td>שרה אבטחון<br><small>sarah@example.com</small></td>
+                                <td><span class="status-badge open">פתוח</span></td>
+                                <td><span class="priority-badge medium">בינונית</span></td>
+                                <td><span class="agent-avatar">ד</span> דוד כהן</td>
+                                <td>לפני 15 דק'</td>
+                                <td>
+                                    <button class="action-btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" class="ticket-number">TKT-2025-003</a></td>
+                                <td>שאלה על תמחור</td>
+                                <td>אבי רונן<br><small>avi@example.com</small></td>
+                                <td><span class="status-badge resolved">נפתר</span></td>
+                                <td><span class="priority-badge low">נמוכה</span></td>
+                                <td><span class="agent-avatar">ר</span> רינה כץ</td>
+                                <td>לפני שעה</td>
+                                <td>
+                                    <button class="action-btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" class="ticket-number">TKT-2025-004</a></td>
+                                <td>בעיה קריטית בשרת</td>
+                                <td>חברת טכנולוגיות<br><small>tech@company.com</small></td>
+                                <td><span class="status-badge pending">ממתין</span></td>
+                                <td><span class="priority-badge urgent">דחוף</span></td>
+                                <td><span class="agent-avatar">א</span> אלי שמש</td>
+                                <td>לפני 2 שעות</td>
+                                <td>
+                                    <button class="action-btn" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Chat Button -->
+    <button class="chat-toggle" onclick="toggleChat()">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <!-- WhatsApp-style Chat -->
+    <div class="chat-section" id="chatSection">
+        <div class="chat-header">
+            <div class="chat-title">צ'אט פנימי - צוות תמיכה</div>
+            <button class="chat-close" onclick="toggleChat()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message received">
+                <div class="message-bubble">
+                    יש לנו פניה דחופה מלקוח VIP - TKT-2025-004
+                    <div class="message-time">14:30</div>
+                </div>
+            </div>
+            
+            <div class="message sent">
+                <div class="message-bubble">
+                    קיבלתי, אני לוקח את זה עכשיו
+                    <div class="message-time">14:31</div>
+                </div>
+            </div>
+            
+            <div class="message received">
+                <div class="message-bubble">
+                    תודה! הלקוח ממתין לטלפון 
+                    <div class="message-time">14:32</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input">
+            <input type="text" placeholder="הקלד הודעה..." id="chatInput">
+            <button class="chat-send" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- New Ticket Modal -->
+    <div class="modal" id="newTicketModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">פניה חדשה</h3>
+                <button class="modal-close" onclick="closeModal('newTicketModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form>
+                <div class="form-group">
+                    <label class="form-label">כותרת הפניה</label>
+                    <input type="text" class="form-input" placeholder="נושא הפניה">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">תיאור</label>
+                    <textarea class="form-input" rows="4" placeholder="תיאור מפורט של הבעיה"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">אימייל לקוח</label>
+                    <input type="email" class="form-input" placeholder="customer@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">טלפון לקוח</label>
+                    <input type="tel" class="form-input" placeholder="050-1234567">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">דחיפות</label>
+                    <select class="form-input">
+                        <option>נמוכה</option>
+                        <option>בינונית</option>
+                        <option>גבוהה</option>
+                        <option>דחוף</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ערוץ</label>
+                    <select class="form-input">
+                        <option>אימייל</option>
+                        <option>צ'אט</option>
+                        <option>WhatsApp</option>
+                        <option>טלפון</option>
+                        <option>SMS</option>
+                    </select>
+                </div>
+                
+                <div style="text-align: left; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">יצירת פניה</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newTicketModal')">ביטול</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                
+                // Add active class to clicked link
+                link.classList.add('active');
+                
+                // Update page title
+                const title = link.textContent.trim();
+                document.querySelector('.page-title').textContent = title;
+            });
+        });
+
+        // Chat functionality
+        function toggleChat() {
+            const chatSection = document.getElementById('chatSection');
+            chatSection.classList.toggle('active');
+        }
+
+        function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const chatMessages = document.getElementById('chatMessages');
+            const message = chatInput.value.trim();
+            
+            if (message) {
+                const now = new Date();
+                const time = now.getHours().toString().padStart(2, '0') + ':' + 
+                           now.getMinutes().toString().padStart(2, '0');
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message sent';
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">
+                        ${message}
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Simulate response after 2 seconds
+                setTimeout(() => {
+                    const responseDiv = document.createElement('div');
+                    responseDiv.className = 'message received';
+                    responseDiv.innerHTML = `
+                        <div class="message-bubble">
+                            קיבלתי, אטפל בזה מיד!
+                            <div class="message-time">${time}</div>
+                        </div>
+                    `;
+                    chatMessages.appendChild(responseDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 2000);
+            }
+        }
+
+        // Enter key for chat
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Modal functions
+        function openNewTicketModal() {
+            document.getElementById('newTicketModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Simulate real-time updates
+        function updateStats() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const currentValue = parseInt(stat.textContent);
+                const change = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+                const newValue = Math.max(0, currentValue + change);
+                stat.textContent = newValue;
+            });
+        }
+
+        // Update stats every 30 seconds
+        setInterval(updateStats, 30000);
+
+        // Real-time notifications
+        function showNotification(message) {
+            // Simple notification system
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #27ae60;
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                z-index: 9999;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '1';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Simulate new ticket notifications
+        setInterval(() => {
+            if (Math.random() > 0.8) {
+                showNotification('פניה חדשה התקבלה - TKT-' + Date.now());
+                
+                // Update notification badge
+                const badge = document.querySelector('.nav-link .notification-badge');
+                if (badge) {
+                    const current = parseInt(badge.textContent);
+                    badge.textContent = current + 1;
+                }
+            }
+        }, 60000); // Every minute
+
+        // Mobile responsiveness
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        }
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            }
+        });
+    </script>
+</body>
+</html>
